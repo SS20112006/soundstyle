@@ -13,30 +13,28 @@ export default function GenreCloud({ genres, maxDisplay = 8 }: GenreCloudProps) 
   
   return (
     <div className="space-y-4">
-      <h3 className="text-white/60 text-sm font-medium uppercase tracking-wider">
-        Géneros Favoritos
+      <h3 className="text-white/50 text-sm font-medium uppercase tracking-wider">
+        Your Genres
       </h3>
       
       <div className="flex flex-wrap gap-2">
         {displayGenres.map((genre, index) => {
           const intensity = genre.count / maxCount;
-          const size = 0.75 + intensity * 0.5; // 0.75rem to 1.25rem
           
           return (
             <motion.span
               key={genre.genre}
-              initial={{ opacity: 0, scale: 0.8 }}
+              initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: index * 0.05 }}
-              style={{ fontSize: `${size}rem` }}
+              transition={{ delay: index * 0.05, duration: 0.3 }}
               className={`
-                px-4 py-2 rounded-full font-medium
+                px-4 py-2 rounded-full text-sm font-medium
                 transition-all duration-200 cursor-default
                 ${intensity > 0.7 
                   ? 'bg-[#1DB954] text-black' 
                   : intensity > 0.4
-                    ? 'bg-[#1DB954]/30 text-[#1DB954]'
-                    : 'bg-white/10 text-white/60'
+                    ? 'bg-[#1DB954]/20 text-[#1DB954]'
+                    : 'bg-white/[0.06] text-white/60'
                 }
               `}
             >
