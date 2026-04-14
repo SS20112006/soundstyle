@@ -15,6 +15,7 @@ import ClosetUpload from '@/components/ClosetUpload';
 import AlbumView from '@/components/AlbumView';
 import ArtistView from '@/components/ArtistView';
 import SocialShare from '@/components/SocialShare';
+import StyleCardDownload from '@/components/StyleCardDownload';
 import { SpotifyPlaylist, SpotifyArtist, SpotifyAlbum, StyleProfile, RecommendedItem } from '@/types';
 import { StyleTag } from '@/lib/styleMapper';
 
@@ -273,13 +274,20 @@ export default function DashboardPage() {
                     <StyleTags tags={styleTags} />
                   </div>
                   
-                  {/* Social Share */}
-                  <div className="flex justify-center pt-4">
+                  {/* Social Share & Download */}
+                  <div className="flex flex-col items-center gap-4 pt-4">
                     <SocialShare
                       styleProfile={styleProfile}
                       moodProfile={moodProfile!}
                       topArtists={topArtists.map(a => a.name)}
                       topGenres={topGenres.map(g => g.genre)}
+                      userName={user?.display_name}
+                    />
+                    
+                    <StyleCardDownload
+                      styleProfile={styleProfile}
+                      moodProfile={moodProfile!}
+                      topArtists={topArtists.map(a => a.name)}
                       userName={user?.display_name}
                     />
                   </div>
