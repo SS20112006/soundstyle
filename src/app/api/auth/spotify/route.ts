@@ -1,9 +1,9 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getSpotifyAuthUrl } from '@/lib/spotify';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const { url, state, codeVerifier } = getSpotifyAuthUrl();
+    const { url, state, codeVerifier } = getSpotifyAuthUrl(request as any);
     
     const response = NextResponse.redirect(url);
     
@@ -25,11 +25,13 @@ export async function GET() {
     });
     
     return response;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Auth error:', error);
-    return NextResponse.json(
-      { error: 'Failed to initiate Spotify auth' },
-      { status: 500 }
-    );
+    
+    // Return a helpful error page
+    const errorUrl = new URL('/', request.url);
+    errorUrl.searchParams.set('error', error.message || 'auth_failed');
+    
+    return NextResponse.redirect(errorUrl);
   }
 }

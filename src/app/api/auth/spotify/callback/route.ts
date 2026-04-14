@@ -13,27 +13,27 @@ export async function GET(request: NextRequest) {
   
   // Handle user denying access
   if (error) {
-    return NextResponse.redirect(
-      new URL(`/?error=${encodeURIComponent(error)}`, request.url)
-    );
+    const errorUrl = new URL('/', request.url);
+    errorUrl.searchParams.set('error', error);
+    return NextResponse.redirect(errorUrl);
   }
   
   // Verify state parameter (CSRF protection)
   if (!code || !state || state !== storedState) {
-    return NextResponse.redirect(
-      new URL('/?error=invalid_state', request.url)
-    );
+    const errorUrl = new URL('/', request.url);
+    errorUrl.searchParams.set('error', 'invalid_state');
+    return NextResponse.redirect(errorUrl);
   }
   
   if (!codeVerifier) {
-    return NextResponse.redirect(
-      new URL('/?error=missing_verifier', request.url)
-    );
+    const errorUrl = new URL('/', request.url);
+    errorUrl.searchParams.set('error', 'missing_verifier');
+    return NextResponse.redirect(errorUrl);
   }
   
   try {
     // Exchange code for tokens
-    const tokens = await exchangeCodeForTokens(code, codeVerifier);
+    const tokens = await exchangeCodeForTokens(code, codeVerifier, request as any);
     
     // Get user profile
     const user = await getCurrentUser(tokens.access_token);
@@ -81,8 +81,8 @@ export async function GET(request: NextRequest) {
     return response;
   } catch (error) {
     console.error('Token exchange error:', error);
-    return NextResponse.redirect(
-      new URL('/?error=auth_failed', request.url)
-    );
+    const errorUrl = new URL('/', request.url);
+    errorUrl.searchParams.set('error', 'auth_failed');
+    return NextResponse.redirect(errorUrl);
   }
 }

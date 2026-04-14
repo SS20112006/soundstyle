@@ -8,9 +8,9 @@ const SPOTIFY_API_URL = 'https://api.spotify.com/v1';
 const SCOPES = [
   'user-read-private',
   'user-read-email',
-  'user-top-read',           // Top artists and tracks
-  'user-read-recently-played', // Recently played tracks
-  'playlist-read-private',    // Read private playlists
+  'user-top-read',
+  'user-read-recently-played',
+  'playlist-read-private',
   'playlist-read-collaborative',
 ].join(' ');
 
@@ -40,14 +40,37 @@ function generateCodeVerifier(): string {
     .replace(/=+$/, '');
 }
 
+// Get the redirect URI dynamically based on the request
+function getRedirectUri(request?: Request): string {
+  // First, try the environment variable
+  const envUri = process.env.NEXT_PUBLIC_SPOTIFY_REDIRECT_URI;
+  if (envUri && !envUri.includes('your_')) {
+    return envUri;
+  }
+  
+  // Fallback: construct from request headers
+  if (request) {
+    const host = request.headers.get('host') || 'localhost:3000';
+    const protocol = host.includes('localhost') ? 'http' : 'https';
+    return `${protocol}://${host}/api/auth/spotify/callback`;
+  }
+  
+  // Default fallback - use 127.0.0.1 (Spotify doesn't accept localhost)
+  return 'http://127.0.0.1:3000/api/auth/spotify/callback';
+}
+
 // ===== AUTH FUNCTIONS =====
 
-export function getSpotifyAuthUrl(): { url: string; state: string; codeVerifier: string } {
+export function getSpotifyAuthUrl(request?: Request): { url: string; state: string; codeVerifier: string } {
   const state = generateState();
   const codeVerifier = generateCodeVerifier();
   
-  const clientId = process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID!;
-  const redirectUri = process.env.NEXT_PUBLIC_SPOTIFY_REDIRECT_URI!;
+  const clientId = process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID;
+  const redirectUri = getRedirectUri(request);
+  
+  if (!clientId || clientId === 'your_client_id_here') {
+    throw new Error('Spotify Client ID not configured. Please set NEXT_PUBLIC_SPOTIFY_CLIENT_ID in .env.local');
+  }
   
   const params = new URLSearchParams({
     client_id: clientId,
@@ -67,11 +90,16 @@ export function getSpotifyAuthUrl(): { url: string; state: string; codeVerifier:
 
 export async function exchangeCodeForTokens(
   code: string,
-  codeVerifier: string
+  codeVerifier: string,
+  request?: Request
 ): Promise<SpotifyTokens> {
-  const clientId = process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID!;
-  const clientSecret = process.env.SPOTIFY_CLIENT_SECRET!;
-  const redirectUri = process.env.NEXT_PUBLIC_SPOTIFY_REDIRECT_URI!;
+  const clientId = process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID;
+  const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
+  const redirectUri = getRedirectUri(request);
+  
+  if (!clientId || !clientSecret) {
+    throw new Error('Spotify credentials not configured');
+  }
   
   const response = await fetch(SPOTIFY_TOKEN_URL, {
     method: 'POST',
@@ -104,8 +132,12 @@ export async function exchangeCodeForTokens(
 }
 
 export async function refreshAccessToken(refreshToken: string): Promise<SpotifyTokens> {
-  const clientId = process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID!;
-  const clientSecret = process.env.SPOTIFY_CLIENT_SECRET!;
+  const clientId = process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID;
+  const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
+  
+  if (!clientId || !clientSecret) {
+    throw new Error('Spotify credentials not configured');
+  }
   
   const response = await fetch(SPOTIFY_TOKEN_URL, {
     method: 'POST',
