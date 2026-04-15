@@ -212,7 +212,7 @@ function generateOutfitsLocally(
   
   // === OUTFIT 3: Casual variation ===
   const outfit3Items: OutfitItem[] = [];
-  const casualPieces = clothingTypes.filter(t => 
+  const casualPieces = clothingTypes.filter((t: string) => 
     t.toLowerCase().includes('tee') || t.toLowerCase().includes('hoodie') || 
     t.toLowerCase().includes('sweater') || t.toLowerCase().includes('jogger') ||
     t.toLowerCase().includes('jeans') || t.toLowerCase().includes('sneaker')
