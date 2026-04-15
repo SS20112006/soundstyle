@@ -150,7 +150,7 @@ export default function StyleCardDownload({
           whileTap={{ scale: 0.98 }}
           onClick={handleShare}
           disabled={isGenerating}
-          className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-[#1DB954] to-emerald-400 text-black font-semibold rounded-full shadow-lg disabled:opacity-50"
+          className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-[#c4a882] to-emerald-400 text-black font-semibold rounded-full shadow-lg disabled:opacity-50"
         >
           {isGenerating ? (
             <div className="w-5 h-5 border-2 border-black/20 border-t-black rounded-full animate-spin" />

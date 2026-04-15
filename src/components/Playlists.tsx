@@ -40,7 +40,7 @@ export default function Playlists({ playlists, onSelect }: PlaylistsProps) {
               
               {/* Play overlay */}
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
-                <div className="w-12 h-12 rounded-full bg-[#1DB954] flex items-center justify-center shadow-xl">
+                <div className="w-12 h-12 rounded-full bg-[#c4a882] flex items-center justify-center shadow-xl">
                   <svg className="w-6 h-6 text-black ml-1" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M8 5v14l11-7z"/>
                   </svg>
@@ -48,7 +48,7 @@ export default function Playlists({ playlists, onSelect }: PlaylistsProps) {
               </div>
             </div>
             
-            <p className="text-white font-medium truncate group-hover:text-[#1DB954] transition-colors">
+            <p className="text-white font-medium truncate group-hover:text-[#c4a882] transition-colors">
               {playlist.name}
             </p>
             <p className="text-white/40 text-sm truncate">

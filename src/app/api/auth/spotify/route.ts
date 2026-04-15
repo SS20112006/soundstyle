@@ -3,32 +3,22 @@ import { getSpotifyAuthUrl } from '@/lib/spotify';
 
 export async function GET(request: NextRequest) {
   try {
-    const { url, state, codeVerifier } = getSpotifyAuthUrl(request as any);
+    const { url, state, codeVerifier } = getSpotifyAuthUrl(request);
     
-    const response = NextResponse.redirect(url);
+    // Encode state + codeVerifier in the state parameter
+    // Spotify passes the state through unchanged — no cookies needed
+    const combinedState = btoa(JSON.stringify({ s: state, v: codeVerifier }));
     
-    // Store state and codeVerifier in cookies for verification
-    response.cookies.set('spotify_auth_state', state, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 60 * 10, // 10 minutes
-      path: '/',
-    });
+    // Replace the state in the URL
+    const authUrl = new URL(url);
+    authUrl.searchParams.set('state', combinedState);
     
-    response.cookies.set('spotify_code_verifier', codeVerifier, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 60 * 10,
-      path: '/',
-    });
+    console.log('[AUTH] Redirecting to Spotify, state length:', combinedState.length);
     
-    return response;
+    return NextResponse.redirect(authUrl.toString());
   } catch (error: any) {
-    console.error('Auth error:', error);
+    console.error('[AUTH] Error:', error.message);
     
-    // Return a helpful error page
     const errorUrl = new URL('/', request.url);
     errorUrl.searchParams.set('error', error.message || 'auth_failed');
     

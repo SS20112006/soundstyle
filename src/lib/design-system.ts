@@ -17,8 +17,8 @@ export const colors = {
   
   // Semantic Colors
   semantic: {
-    spotify: '#1DB954',
-    spotifyHover: '#1ed760',
+    spotify: '#c4a882',
+    spotifyHover: '#d4b892',
     accent: '#0A84FF', // Apple Blue
     success: '#30D158',
     warning: '#FF9F0A',
@@ -50,7 +50,7 @@ export const colors = {
   
   // Gradients (Apple-style)
   gradients: {
-    spotify: 'linear-gradient(135deg, #1DB954 0%, #1ed760 100%)',
+    spotify: 'linear-gradient(135deg, #c4a882 0%, #d4b892 100%)',
     blue: 'linear-gradient(135deg, #0A84FF 0%, #5E5CE6 100%)',
     purple: 'linear-gradient(135deg, #BF5AF2 0%, #8944AB 100%)',
     warm: 'linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%)',

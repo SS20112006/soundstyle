@@ -1,6 +1,77 @@
 // Affiliate Links Configuration & Deep Link System
 
 // ==========================================
+// AFFILIATE NETWORK CONFIGURATION
+// ==========================================
+
+export interface AffiliateNetwork {
+  name: string;
+  id: string;
+  buildUrl: (destinationUrl: string, trackingId?: string) => string;
+}
+
+export const AFFILIATE_NETWORKS: Record<string, AffiliateNetwork> = {
+  skimlinks: {
+    name: 'Skimlinks',
+    id: 'skimlinks',
+    buildUrl: (destinationUrl: string, trackingId?: string) => {
+      const encodedUrl = encodeURIComponent(destinationUrl);
+      const publisherId = trackingId || process.env.NEXT_PUBLIC_SKIMLINKS_ID || '';
+      return `https://go.skimlinks.com/?id=${publisherId}&url=${encodedUrl}`;
+    },
+  },
+  amazon: {
+    name: 'Amazon Associates',
+    id: 'amazon',
+    buildUrl: (destinationUrl: string, trackingId?: string) => {
+      const tag = trackingId || process.env.NEXT_PUBLIC_AMAZON_TAG || 'soundstyle-20';
+      // Only apply to Amazon URLs
+      if (!destinationUrl.includes('amazon.')) return destinationUrl;
+      
+      // Remove existing tag param if present
+      const url = new URL(destinationUrl);
+      url.searchParams.delete('tag');
+      url.searchParams.set('tag', tag);
+      return url.toString();
+    },
+  },
+  generic: {
+    name: 'Generic Affiliate',
+    id: 'generic',
+    buildUrl: (destinationUrl: string, trackingId?: string) => {
+      const url = new URL(destinationUrl);
+      url.searchParams.set('utm_source', 'soundstyle');
+      url.searchParams.set('utm_medium', 'affiliate');
+      url.searchParams.set('utm_campaign', trackingId || 'default');
+      url.searchParams.set('ref', 'soundstyle');
+      return url.toString();
+    },
+  },
+};
+
+// Determine which affiliate network to use based on URL
+export function getAffiliateNetwork(url: string): AffiliateNetwork {
+  if (url.includes('amazon.') || url.includes('amzn.to')) {
+    return AFFILIATE_NETWORKS.amazon;
+  }
+  // Default to Skimlinks for most retailers
+  return AFFILIATE_NETWORKS.skimlinks;
+}
+
+// Apply affiliate link transformation
+export function applyAffiliateLink(
+  destinationUrl: string,
+  network?: 'skimlinks' | 'amazon' | 'generic',
+  trackingId?: string
+): string {
+  const selectedNetwork = network
+    ? AFFILIATE_NETWORKS[network]
+    : getAffiliateNetwork(destinationUrl);
+
+  return selectedNetwork.buildUrl(destinationUrl, trackingId);
+}
+
+// ==========================================
 // STORE CONFIGURATION
 // ==========================================
 
@@ -161,7 +232,8 @@ export function getStoresForStyle(aesthetic: string): string[] {
 export function generateAffiliateUrl(
   storeKey: string,
   itemQuery: string,
-  itemId?: string
+  itemId?: string,
+  network?: 'skimlinks' | 'amazon' | 'generic'
 ): string {
   const store = STORES[storeKey];
   if (!store) return '#';
@@ -172,13 +244,23 @@ export function generateAffiliateUrl(
   // Build base URL
   let url = `${store.searchUrl}${encodedQuery}`;
   
-  // Add affiliate ID if available
+  // Add affiliate ID if available (legacy support)
   if (store.affiliateId) {
     const separator = url.includes('?') ? '&' : '?';
     url += `${separator}utm_source=soundstyle&utm_medium=affiliate&utm_campaign=${store.affiliateId}`;
   }
+
+  // Apply affiliate network transformation
+  url = applyAffiliateLink(url, network, store.affiliateId);
   
   return url;
+}
+
+// Generate raw destination URL without affiliate wrapper (for comparison)
+export function generateRawUrl(storeKey: string, itemQuery: string): string {
+  const store = STORES[storeKey];
+  if (!store) return '#';
+  return `${store.searchUrl}${encodeURIComponent(itemQuery)}`;
 }
 
 // ==========================================
@@ -243,7 +325,8 @@ export function generateProductFromStyle(
   style: string[],
   colors: string[],
   budget: 'low' | 'mid' | 'high',
-  aesthetic: string
+  aesthetic: string,
+  network?: 'skimlinks' | 'amazon' | 'generic'
 ): GeneratedProduct {
   const storeKey = getBestStoreForItem(category, style, budget, aesthetic);
   const store = STORES[storeKey];
@@ -262,7 +345,7 @@ export function generateProductFromStyle(
     price,
     currency: 'EUR',
     searchQuery,
-    affiliateUrl: generateAffiliateUrl(storeKey, searchQuery),
+    affiliateUrl: generateAffiliateUrl(storeKey, searchQuery, undefined, network),
     deepLink: generateDeepLink(storeKey, searchQuery),
     style,
     colors,

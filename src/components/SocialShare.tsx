@@ -168,7 +168,7 @@ export default function SocialShare({
                 {/* Stats */}
                 <div className="grid grid-cols-3 gap-4 text-center">
                   <div className="bg-white/5 rounded-xl p-3">
-                    <p className="text-2xl font-bold text-[#1DB954]">
+                    <p className="text-2xl font-bold text-[#c4a882]">
                       {Math.round(moodProfile.energy * 100)}%
                     </p>
                     <p className="text-white/50 text-xs">Energia</p>
@@ -203,7 +203,7 @@ export default function SocialShare({
                     </p>
                     <div className="flex flex-wrap gap-1 mt-3">
                       {shareData.hashtags.slice(0, 4).map((tag, i) => (
-                        <span key={i} className="text-[#1DB954] text-xs">{tag}</span>
+                        <span key={i} className="text-[#c4a882] text-xs">{tag}</span>
                       ))}
                     </div>
                   </div>
@@ -212,7 +212,7 @@ export default function SocialShare({
                 {/* Loading */}
                 {isGenerating && (
                   <div className="flex items-center justify-center py-4">
-                    <div className="w-6 h-6 border-2 border-white/20 border-t-[#1DB954] rounded-full animate-spin" />
+                    <div className="w-6 h-6 border-2 border-white/20 border-t-[#c4a882] rounded-full animate-spin" />
                     <span className="ml-3 text-white/50 text-sm">A gerar descrição...</span>
                   </div>
                 )}

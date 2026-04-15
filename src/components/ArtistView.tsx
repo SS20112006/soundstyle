@@ -42,7 +42,7 @@ export default function ArtistView({
             onClick={() => onSelectArtist?.(artist)}
             className={`
               flex-shrink-0 group text-center
-              ${selectedArtist?.id === artist.id ? 'ring-2 ring-[#1DB954] rounded-2xl' : ''}
+              ${selectedArtist?.id === artist.id ? 'ring-2 ring-[#c4a882] rounded-2xl' : ''}
             `}
           >
             {/* Artist Image */}
@@ -64,8 +64,8 @@ export default function ArtistView({
               
               {/* Selected Indicator */}
               {selectedArtist?.id === artist.id && (
-                <div className="absolute inset-0 bg-[#1DB954]/20 flex items-center justify-center">
-                  <div className="w-10 h-10 rounded-full bg-[#1DB954] flex items-center justify-center">
+                <div className="absolute inset-0 bg-[#c4a882]/20 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full bg-[#c4a882] flex items-center justify-center">
                     <svg className="w-5 h-5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                     </svg>
@@ -75,12 +75,12 @@ export default function ArtistView({
             </div>
             
             {/* Artist Info */}
-            <p className="text-white text-sm font-medium truncate max-w-28 md:max-w-32 group-hover:text-[#1DB954] transition-colors">
+            <p className="text-white text-sm font-medium truncate max-w-28 md:max-w-32 group-hover:text-[#c4a882] transition-colors">
               {artist.name}
             </p>
-            {artist.genres[0] && (
+            {artist.genres?.[0] && (
               <p className="text-white/40 text-xs truncate max-w-28 md:max-w-32">
-                {artist.genres[0]}
+                {artist.genres?.[0]}
               </p>
             )}
           </motion.button>
@@ -118,7 +118,7 @@ export default function ArtistView({
               
               {/* Genres */}
               <div className="flex flex-wrap gap-2 mb-4">
-                {selectedArtist.genres.slice(0, 5).map((genre, i) => (
+                {selectedArtist.genres?.slice(0, 5).map((genre, i) => (
                   <span 
                     key={i}
                     className="px-3 py-1 bg-white/10 rounded-full text-xs text-white/70"
@@ -132,7 +132,7 @@ export default function ArtistView({
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="px-6 py-3 bg-gradient-to-r from-[#1DB954] to-emerald-400 text-black font-semibold rounded-full shadow-lg"
+                className="px-6 py-3 bg-gradient-to-r from-[#c4a882] to-emerald-400 text-black font-semibold rounded-full shadow-lg"
               >
                 Gerar Look do {selectedArtist.name.split(' ')[0]} ✨
               </motion.button>

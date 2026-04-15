@@ -286,6 +286,32 @@ export async function getAlbumTracks(
 
 // ===== MOOD AGGREGATION =====
 
+// ===== SEARCH =====
+
+export interface SpotifySearchResult {
+  tracks?: SpotifyTrack[];
+  artists?: SpotifyArtist[];
+}
+
+export async function searchSpotify(
+  accessToken: string,
+  query: string,
+  type: ('track' | 'artist')[] = ['track', 'artist'],
+  limit: number = 10
+): Promise<SpotifySearchResult> {
+  const typeStr = type.join(',');
+  const encodedQuery = encodeURIComponent(query);
+  const data = await spotifyFetch<any>(
+    `/search?q=${encodedQuery}&type=${typeStr}&limit=${limit}`,
+    accessToken
+  );
+
+  return {
+    tracks: data.tracks?.items || [],
+    artists: data.artists?.items || [],
+  };
+}
+
 export function aggregateMoodProfile(audioFeatures: AudioFeatures[]): {
   energy: number;
   valence: number;

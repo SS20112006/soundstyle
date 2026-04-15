@@ -38,7 +38,7 @@ export function generateStyleCardSVG(
   
   // Generate stat bars
   const statBars = [
-    { label: 'ENERGIA', value: energy, color: '#1DB954' },
+    { label: 'ENERGIA', value: energy, color: '#c4a882' },
     { label: 'VIBE', value: valence, color: '#9333ea' },
     { label: 'FLOW', value: danceability, color: '#ec4899' },
   ];
@@ -89,7 +89,7 @@ export function generateStyleCardSVG(
       
       <!-- Logo -->
       <text x="100" y="80" fill="#ffffff" font-family="Arial, sans-serif" font-size="28" font-weight="bold">
-        Sound<tspan fill="#1DB954">Style</tspan>
+        Sound<tspan fill="#c4a882">Style</tspan>
       </text>
       
       <!-- User name -->
@@ -117,7 +117,7 @@ export function generateStyleCardSVG(
       <circle cx="660" cy="680" r="60" fill="${colorPalette.neutral}"/>
       
       <!-- Fit Badge -->
-      <rect x="${width - 250}" y="620" width="150" height="50" rx="25" fill="#1DB954"/>
+      <rect x="${width - 250}" y="620" width="150" height="50" rx="25" fill="#c4a882"/>
       <text x="${width - 175}" y="652" fill="#000000" font-family="Arial, sans-serif" font-size="16" font-weight="bold" text-anchor="middle">${fit.toUpperCase()} FIT</text>
       
       <!-- Stats Section -->
@@ -137,7 +137,7 @@ export function generateStyleCardSVG(
       ${artistsText}
       
       <!-- CTA -->
-      <rect x="${width/2 - 150}" y="${height - 180}" width="300" height="60" rx="30" fill="#1DB954"/>
+      <rect x="${width/2 - 150}" y="${height - 180}" width="300" height="60" rx="30" fill="#c4a882"/>
       <text x="${width/2}" y="${height - 145}" fill="#000000" font-family="Arial, sans-serif" font-size="18" font-weight="bold" text-anchor="middle">DESCOBRIR O MEU ESTILO</text>
       
       <!-- URL -->

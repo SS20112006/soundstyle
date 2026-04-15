@@ -31,9 +31,9 @@ export default function GenreCloud({ genres, maxDisplay = 8 }: GenreCloudProps) 
                 px-4 py-2 rounded-full text-sm font-medium
                 transition-all duration-200 cursor-default
                 ${intensity > 0.7 
-                  ? 'bg-[#1DB954] text-black' 
+                  ? 'bg-[#c4a882] text-black' 
                   : intensity > 0.4
-                    ? 'bg-[#1DB954]/20 text-[#1DB954]'
+                    ? 'bg-[#c4a882]/20 text-[#c4a882]'
                     : 'bg-white/[0.06] text-white/60'
                 }
               `}

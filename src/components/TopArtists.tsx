@@ -25,7 +25,7 @@ export default function TopArtists({ artists, onSelect }: TopArtistsProps) {
             onClick={() => onSelect?.(artist)}
             className="flex-shrink-0 group"
           >
-            <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden ring-2 ring-white/10 group-hover:ring-[#1DB954] transition-all duration-300">
+            <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden ring-2 ring-white/10 group-hover:ring-[#c4a882] transition-all duration-300">
               {artist.images[0] ? (
                 <img
                   src={artist.images[0].url}
@@ -43,9 +43,9 @@ export default function TopArtists({ artists, onSelect }: TopArtistsProps) {
               {artist.name}
             </p>
             
-            {artist.genres[0] && (
+            {artist.genres?.[0] && (
               <p className="text-white/40 text-xs text-center truncate max-w-24 md:max-w-32">
-                {artist.genres[0]}
+                {artist.genres?.[0]}
               </p>
             )}
           </motion.button>

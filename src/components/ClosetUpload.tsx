@@ -89,7 +89,7 @@ export default function ClosetUpload({ onItemAnalyzed }: ClosetUploadProps) {
           relative border-2 border-dashed rounded-2xl p-8
           cursor-pointer transition-all duration-200
           ${isDragging 
-            ? 'border-[#1DB954] bg-[#1DB954]/10' 
+            ? 'border-[#c4a882] bg-[#c4a882]/10' 
             : 'border-white/20 hover:border-white/40 hover:bg-white/5'
           }
         `}
@@ -110,7 +110,7 @@ export default function ClosetUpload({ onItemAnalyzed }: ClosetUploadProps) {
             <div className="flex-1">
               {isAnalyzing ? (
                 <div className="flex items-center gap-3">
-                  <div className="w-6 h-6 border-2 border-[#1DB954]/20 border-t-[#1DB954] rounded-full animate-spin" />
+                  <div className="w-6 h-6 border-2 border-[#c4a882]/20 border-t-[#c4a882] rounded-full animate-spin" />
                   <span className="text-white/60">A analisar com IA...</span>
                 </div>
               ) : analysis ? (
@@ -156,7 +156,7 @@ export default function ClosetUpload({ onItemAnalyzed }: ClosetUploadProps) {
             className="bg-white/5 rounded-xl p-4 space-y-3"
           >
             <div className="flex items-center gap-2">
-              <span className="text-[#1DB954]">✓</span>
+              <span className="text-[#c4a882]">✓</span>
               <span className="text-white/80 text-sm">Análise completa</span>
             </div>
             
@@ -173,7 +173,7 @@ export default function ClosetUpload({ onItemAnalyzed }: ClosetUploadProps) {
               {analysis.tags.slice(0, 3).map((tag, i) => (
                 <span 
                   key={i}
-                  className="px-3 py-1 bg-[#1DB954]/20 text-[#1DB954] rounded-full text-xs"
+                  className="px-3 py-1 bg-[#c4a882]/20 text-[#c4a882] rounded-full text-xs"
                 >
                   {tag}
                 </span>

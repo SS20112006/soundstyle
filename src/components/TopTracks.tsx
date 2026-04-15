@@ -45,7 +45,7 @@ export default function TopTracks({ tracks, onSelect }: TopTracksProps) {
             
             {/* Track info */}
             <div className="flex-1 text-left min-w-0">
-              <p className="text-white font-medium truncate group-hover:text-[#1DB954] transition-colors">
+              <p className="text-white font-medium truncate group-hover:text-[#c4a882] transition-colors">
                 {track.name}
               </p>
               <p className="text-white/50 text-sm truncate">

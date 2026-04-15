@@ -2,59 +2,97 @@
 
 import { motion } from 'framer-motion';
 
+interface SpotifyUser {
+  display_name: string;
+  images?: { url: string; height?: number; width?: number }[];
+}
+
 interface SpotifyLoginButtonProps {
   onClick?: () => void;
   disabled?: boolean;
   compact?: boolean;
+  user?: SpotifyUser | null;
 }
 
-export default function SpotifyLoginButton({ onClick, disabled, compact = false }: SpotifyLoginButtonProps) {
-  const handleLogin = () => {
+export default function SpotifyLoginButton({ onClick, disabled, compact = false, user = null }: SpotifyLoginButtonProps) {
+  const handleClick = () => {
     if (onClick) {
       onClick();
+    } else if (user) {
+      // If logged in, go to dashboard
+      window.location.href = '/dashboard';
     } else {
+      // If logged out, initiate Spotify auth
       window.location.href = '/api/auth/spotify';
     }
   };
   
+  // Get user avatar URL (fallback to first available image)
+  const avatarUrl = user?.images?.[0]?.url;
+  
   if (compact) {
     return (
       <motion.button
-        onClick={handleLogin}
+        onClick={handleClick}
         disabled={disabled}
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
-        className="
+        className={`
           flex items-center gap-2 px-4 py-2
-          bg-[#1DB954] hover:bg-[#1ed760]
-          text-black text-sm font-semibold rounded-full
+          ${user 
+            ? 'bg-[#c4a882]/20 hover:bg-[#c4a882]/30 border-[#c4a882]/30' 
+            : 'bg-white/[0.08] hover:bg-white/[0.12] border-white/[0.1]'
+          }
+          text-white text-sm font-medium rounded-full
+          border
           transition-colors duration-200
           disabled:opacity-50 disabled:cursor-not-allowed
-        "
+        `}
       >
-        <SpotifyIcon size={16} />
-        <span>Connect</span>
+        {user && avatarUrl ? (
+          <img 
+            src={avatarUrl} 
+            alt={user.display_name}
+            className="w-6 h-6 rounded-full object-cover"
+          />
+        ) : (
+          <SpotifyIcon size={14} />
+        )}
+        <span>{user ? user.display_name.split(' ')[0] : 'Connect'}</span>
       </motion.button>
     );
   }
   
   return (
     <motion.button
-      onClick={handleLogin}
+      onClick={handleClick}
       disabled={disabled}
-      whileHover={{ scale: 1.02, boxShadow: '0 8px 30px rgba(29, 185, 84, 0.3)' }}
+      whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
-      className="
+      className={`
         flex items-center gap-3 px-8 py-4
-        bg-[#1DB954] hover:bg-[#1ed760]
-        text-black font-semibold rounded-full
+        ${user 
+          ? 'bg-gradient-to-r from-[#8b6f5c] to-[#c4a882] hover:from-[#9b7f6c] hover:to-[#d4b892]' 
+          : 'bg-gradient-to-r from-[#c4a882] to-[#8b6f5c] hover:from-[#d4b892] hover:to-[#9b7f6c]'
+        }
+        text-white font-semibold rounded-full
         transition-all duration-300
         disabled:opacity-50 disabled:cursor-not-allowed
-        shadow-lg shadow-[#1DB954]/20
-      "
+        shadow-lg shadow-[#c4a882]/15
+      `}
     >
-      <SpotifyIcon size={24} />
-      <span className="text-base">Connect with Spotify</span>
+      {user && avatarUrl ? (
+        <img 
+          src={avatarUrl} 
+          alt={user.display_name}
+          className="w-8 h-8 rounded-full object-cover border-2 border-white/30"
+        />
+      ) : (
+        <SpotifyIcon size={20} />
+      )}
+      <span className="text-base">
+        {user ? `Welcome, ${user.display_name.split(' ')[0]}` : 'Connect with Spotify'}
+      </span>
     </motion.button>
   );
 }
