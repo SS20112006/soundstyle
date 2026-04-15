@@ -892,7 +892,7 @@ export default function DashboardPage() {
                                     source: { type: 'artist', name: artist.name, imageUrl: artist.images?.[0]?.url },
                                   });
                                 }}
-                                isSaved={looks.some(l => l.name === outfitData.outfit?.name)}
+                                isSaved={savedLooks.some(l => l.name === outfitData.outfit?.name)}
                               />
                             );
                           })}
@@ -923,7 +923,7 @@ export default function DashboardPage() {
                                     source: { type: 'track', name: track.name, imageUrl: track.album.images?.[0]?.url },
                                   });
                                 }}
-                                isSaved={looks.some(l => l.name === outfitData.outfit?.name)}
+                                isSaved={savedLooks.some(l => l.name === outfitData.outfit?.name)}
                               />
                             );
                           })}
@@ -954,7 +954,7 @@ export default function DashboardPage() {
                                     source: { type: 'playlist', name: playlist.name, imageUrl: playlist.images?.[0]?.url },
                                   });
                                 }}
-                                isSaved={looks.some(l => l.name === outfitData.outfit?.name)}
+                                isSaved={savedLooks.some(l => l.name === outfitData.outfit?.name)}
                               />
                             );
                           })}
