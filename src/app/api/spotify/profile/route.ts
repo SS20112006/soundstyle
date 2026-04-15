@@ -99,6 +99,7 @@ export async function GET(request: NextRequest) {
     
     // Extract all genres from top artists
     const genreCounts: Record<string, number> = {};
+    console.log('[PROFILE] First artist:', JSON.stringify(topArtists[0]?.name), 'genres:', topArtists[0]?.genres);
     topArtists.forEach(artist => {
       (artist.genres || []).forEach((genre: string) => {
         genreCounts[genre] = (genreCounts[genre] || 0) + 1;

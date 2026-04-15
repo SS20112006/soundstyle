@@ -2,12 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { mapMoodToStyle, generateStyleTags, STYLE_DEFINITIONS } from '@/lib/styleMapper';
 import { generateProductFromStyle, STORES, getStoresForBudget, getStoresForStyle } from '@/lib/affiliateLinks';
 import { MoodProfile } from '@/types';
+import { Gender } from '@/stores/appStore';
 
 // POST /api/style/generate — Generate outfit recommendations (LOCAL, no OpenAI)
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { moodProfile, topGenres, topArtists, budget, occasion, undesiredColors } = body;
+    const { moodProfile, topGenres, topArtists, budget, occasion, undesiredColors, gender } = body;
     
     if (!moodProfile || !topGenres) {
       return NextResponse.json(
@@ -16,8 +17,8 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // 1. Map mood to style profile
-    const styleProfile = mapMoodToStyle(moodProfile, topGenres);
+    // 1. Map mood to style profile (with gender filter)
+    const styleProfile = mapMoodToStyle(moodProfile, topGenres, undefined, gender as Gender);
     
     // 2. Generate style tags
     const styleTags = generateStyleTags(moodProfile, topGenres, styleProfile);
@@ -31,7 +32,8 @@ export async function POST(request: NextRequest) {
       topArtists || [],
       budgetLevel,
       occasion,
-      undesiredColors || []
+      undesiredColors || [],
+      gender as Gender
     );
     
     return NextResponse.json({
@@ -82,7 +84,8 @@ function generateOutfitsLocally(
   topArtists: string[],
   budget: 'low' | 'mid' | 'high',
   occasion?: string,
-  undesiredColors: string[] = []
+  undesiredColors: string[] = [],
+  gender?: Gender
 ): Outfit[] {
   const outfits: Outfit[] = [];
   const { aesthetic, clothingTypes, accessories, colorPalette, keywords, fit } = styleProfile;

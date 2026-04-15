@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
 import { getStoredUser, isAuthenticated } from '@/lib/auth';
+import { useAppStore } from '@/stores/appStore';
 
 function ErrorBanner() {
   const searchParams = useSearchParams();
@@ -37,6 +38,7 @@ function ErrorBanner() {
 export default function HomePage() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
+  const { measurements, setMeasurements } = useAppStore();
   
   // Auto-redirect if already logged in
   useEffect(() => {
@@ -44,12 +46,31 @@ export default function HomePage() {
       const storedUser = getStoredUser();
       if (storedUser) {
         setUser(storedUser);
-        // Auto-redirect to dashboard after a brief moment
-        const timer = setTimeout(() => router.push('/dashboard'), 800);
+        
+        // Load measurements from localStorage
+        const storedMeasurements = localStorage.getItem('soundstyle_measurements');
+        if (storedMeasurements) {
+          try {
+            const measurementsData = JSON.parse(storedMeasurements);
+            setMeasurements(measurementsData);
+          } catch {}
+        }
+        
+        // Check if profile is complete
+        const hasMeasurements = storedMeasurements !== null;
+        
+        // Auto-redirect to dashboard or setup
+        const timer = setTimeout(() => {
+          if (hasMeasurements) {
+            router.push('/dashboard');
+          } else {
+            router.push('/setup');
+          }
+        }, 800);
         return () => clearTimeout(timer);
       }
     }
-  }, [router]);
+  }, [router, setMeasurements]);
   
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white overflow-hidden relative">
@@ -158,10 +179,9 @@ export default function HomePage() {
             transition={{ delay: 0.5 }}
             className="mt-32 w-full max-w-5xl"
           >
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               {[
                 { icon: '🎵', title: 'Sound Analysis', desc: 'Energy, rhythm, and mood decoded from your listening patterns' },
-                { icon: '🎨', title: 'Color Palette', desc: 'Colors extracted from the vibe and emotion of your favorite songs' },
                 { icon: '👗', title: 'Real Outfits', desc: 'Curated pieces from real stores — Zara, H&M, ASOS, Nike and more' },
               ].map((f, i) => (
                 <motion.div key={f.title} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 + i * 0.1 }}

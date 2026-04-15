@@ -1,14 +1,19 @@
 import { MoodProfile, StyleProfile, ColorPalette } from '@/types';
+import { Gender } from '@/stores/appStore';
 
-// ==========================================
+// =========================================
 // STYLE DEFINITIONS DATABASE
-// ==========================================
+// =========================================
 
 interface StyleDefinition {
   name: string;
   keywords: string[];
   clothingTypes: string[];
+  clothingTypesMale?: string[]; // Male-specific clothing
+  clothingTypesFemale?: string[]; // Female-specific clothing
   accessories: string[];
+  accessoriesMale?: string[]; // Male-specific accessories
+  accessoriesFemale?: string[]; // Female-specific accessories
   colorPalettes: ColorPalette[];
   fit: StyleProfile['fit'];
   genres: string[];
@@ -21,7 +26,11 @@ const STYLE_DEFINITIONS: StyleDefinition[] = [
     name: 'Cyber-Gothic / Techwear',
     keywords: ['futurista', 'técnico', 'escuro', 'industrial', 'funcional'],
     clothingTypes: ['bomber jacket', 'cargo pants', 'tech sneakers', 'mesh top', 'utility vest'],
+    clothingTypesMale: ['bomber jacket', 'cargo pants', 'tech sneakers', 'mesh top', 'utility vest', 'tech joggers'],
+    clothingTypesFemale: ['bomber jacket', 'cargo pants', 'tech sneakers', 'mesh top', 'utility vest', 'tech shorts', 'bodysuit'],
     accessories: ['chain necklace', 'fingerless gloves', 'tactical bag', 'LED accessories'],
+    accessoriesMale: ['chain necklace', 'fingerless gloves', 'tactical bag', 'LED accessories', 'tech watch'],
+    accessoriesFemale: ['chain necklace', 'fingerless gloves', 'tactical bag', 'LED accessories', 'choker', 'body chain'],
     colorPalettes: [
       { primary: '#0a0a0a', secondary: '#1a1a2e', accent: '#e94560', neutral: '#16213e', name: 'Neon Noir' },
       { primary: '#0d1117', secondary: '#21262d', accent: '#58a6ff', neutral: '#30363d', name: 'Terminal Blue' },
@@ -36,7 +45,11 @@ const STYLE_DEFINITIONS: StyleDefinition[] = [
     name: 'Dark Minimal / Noir',
     keywords: ['elegante', 'sóbrio', 'misterioso', 'refinado', 'noturno'],
     clothingTypes: ['trench coat', 'slim trousers', 'Chelsea boots', 'turtleneck', 'blazer'],
+    clothingTypesMale: ['trench coat', 'slim trousers', 'Chelsea boots', 'turtleneck', 'blazer', 'dress shirt'],
+    clothingTypesFemale: ['trench coat', 'slim trousers', 'Chelsea boots', 'turtleneck', 'blazer', 'midi skirt', 'blouse'],
     accessories: ['minimal watch', 'silver ring', 'leather belt', 'dark sunglasses'],
+    accessoriesMale: ['minimal watch', 'silver ring', 'leather belt', 'dark sunglasses', 'tie clip'],
+    accessoriesFemale: ['minimal watch', 'silver ring', 'leather belt', 'dark sunglasses', 'clutch bag', 'hoop earrings'],
     colorPalettes: [
       { primary: '#1a1a1a', secondary: '#2d2d2d', accent: '#8b0000', neutral: '#4a4a4a', name: 'Dark Red' },
       { primary: '#0a0a0a', secondary: '#1f1f1f', accent: '#c0c0c0', neutral: '#333333', name: 'Silver Shadow' },
@@ -513,7 +526,8 @@ function hslToHex(h: number, s: number, l: number): string {
 export function mapMoodToStyle(
   mood: MoodProfile,
   topGenres: { genre: string; count: number }[],
-  tempo?: number
+  tempo?: number,
+  gender?: Gender
 ): StyleProfile {
   // 1. Find primary style based on genres
   const primaryStyle = findPrimaryStyle(topGenres);
@@ -539,12 +553,38 @@ export function mapMoodToStyle(
   // 8. Refine accessories based on energy/complexity
   const refinedAccessories = refineAccessoriesByEnergy(adjustedStyle.accessories, mood.energy);
   
+  // 9. Filter by gender if provided
+  let genderFilteredClothing = refinedClothing;
+  let genderFilteredAccessories = refinedAccessories;
+  
+  if (gender) {
+    // Get gender-specific clothing if available
+    if (gender === 'male' && adjustedStyle.clothingTypesMale) {
+      genderFilteredClothing = adjustStyleByMood(
+        { ...adjustedStyle, clothingTypes: adjustedStyle.clothingTypesMale },
+        mood
+      ).clothingTypes;
+    } else if (gender === 'female' && adjustedStyle.clothingTypesFemale) {
+      genderFilteredClothing = adjustStyleByMood(
+        { ...adjustedStyle, clothingTypes: adjustedStyle.clothingTypesFemale },
+        mood
+      ).clothingTypes;
+    }
+    
+    // Get gender-specific accessories if available
+    if (gender === 'male' && adjustedStyle.accessoriesMale) {
+      genderFilteredAccessories = adjustedStyle.accessoriesMale;
+    } else if (gender === 'female' && adjustedStyle.accessoriesFemale) {
+      genderFilteredAccessories = adjustedStyle.accessoriesFemale;
+    }
+  }
+  
   return {
     aesthetic: adjustedStyle.name,
     keywords: adjustedStyle.keywords,
     colorPalette,
-    clothingTypes: refinedClothing,
-    accessories: refinedAccessories,
+    clothingTypes: genderFilteredClothing,
+    accessories: genderFilteredAccessories,
     fit,
     mood: moodDescriptor,
     genre: topGenres[0]?.genre,

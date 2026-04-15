@@ -6,7 +6,6 @@ import { useAppStore } from '@/stores/appStore';
 import { useSavedLooksStore } from '@/stores/savedLooksStore';
 import MoodDisplay from '@/components/MoodDisplay';
 import GenreCloud from '@/components/GenreCloud';
-import ColorPaletteDisplay from '@/components/ColorPaletteDisplay';
 import StyleTags from '@/components/StyleTags';
 import OutfitCard from '@/components/OutfitCard';
 import ClosetUpload from '@/components/ClosetUpload';
@@ -42,8 +41,11 @@ export default function DashboardPage() {
     error,
     setTimeRange,
     setSpotifyData,
+    setAuth,
     setIsLoading,
     setError,
+    setMeasurements,
+    measurements,
   } = useAppStore();
   
   const { looks: savedLooks, loadFromStorage: loadSavedLooks } = useSavedLooksStore();
@@ -53,6 +55,26 @@ export default function DashboardPage() {
   const [selectedArtist, setSelectedArtist] = useState<SpotifyArtist | null>(null);
   const [selectedAlbum, setSelectedAlbum] = useState<SpotifyAlbum | null>(null);
   const [mobileTab, setMobileTab] = useState<MobileTab>('sound');
+  
+  // Load user from localStorage on mount
+  useEffect(() => {
+    const userStr = localStorage.getItem('spotify_user');
+    if (userStr) {
+      try {
+        const userData = JSON.parse(userStr);
+        setAuth(userData);
+      } catch {}
+    }
+    
+    // Load measurements from localStorage
+    const measurementsStr = localStorage.getItem('soundstyle_measurements');
+    if (measurementsStr) {
+      try {
+        const measurementsData = JSON.parse(measurementsStr);
+        setMeasurements(measurementsData);
+      } catch {}
+    }
+  }, []);
   
   // Style generation state
   const [styleProfile, setStyleProfile] = useState<StyleProfile | null>(null);
@@ -111,6 +133,43 @@ export default function DashboardPage() {
         
         const data = await response.json();
         setSpotifyData(data);
+        
+        console.log('[DASHBOARD] Profile data:', { 
+          hasMood: !!data.moodProfile, 
+          genres: data.topGenres?.length, 
+          artists: data.topArtists?.length 
+        });
+        
+        // Auto-generate looks immediately after data loads
+        // Use genres if available, otherwise use artist names as style context
+        const genres = data.topGenres || [];
+        const hasGenres = genres.length > 0;
+        
+        console.log('[DASHBOARD] Generating looks...', { hasMood: !!data.moodProfile, genres: genres.length });
+        
+        try {
+          const genRes = await fetch('/api/style/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              moodProfile: data.moodProfile || { energy: 0.5, valence: 0.5, danceability: 0.5, acousticness: 0.5, tempo: 120 },
+              topGenres: hasGenres ? genres : [{ genre: 'pop', count: 5 }, { genre: 'rock', count: 3 }],
+              topArtists: (data.topArtists || []).map((a: any) => a.name),
+              budget: 'mid',
+              undesiredColors: [],
+              gender: measurements?.gender,
+            }),
+          });
+          if (genRes.ok) {
+            const genData = await genRes.json();
+            setStyleProfile(genData.styleProfile);
+            setStyleTags(genData.styleTags || []);
+            setOutfits(genData.outfits || []);
+            console.log('[DASHBOARD] Generated', genData.outfits?.length, 'outfits');
+          }
+        } catch (e) {
+          console.error('[DASHBOARD] Style generation failed:', e);
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
@@ -159,6 +218,7 @@ export default function DashboardPage() {
             budget: 'mid',
             undesiredColors: [],
             occasion: `${topGenres[0]?.genre || 'Casual'} Style`,
+            gender: measurements?.gender,
           }),
         })
       );
@@ -177,6 +237,7 @@ export default function DashboardPage() {
               budget: 'mid',
               undesiredColors: [],
               occasion: `${topPlaylist.name} Vibes`,
+              gender: measurements?.gender,
             }),
           })
         );
@@ -196,6 +257,7 @@ export default function DashboardPage() {
             budget: 'mid',
             undesiredColors: [],
             occasion: `${moodLabel} ${energyLabel} Mood`,
+            gender: measurements?.gender,
           }),
         })
       );
@@ -326,6 +388,7 @@ export default function DashboardPage() {
           topArtists: topArtists.map(a => a.name),
           budget,
           undesiredColors,
+          gender: measurements?.gender,
         }),
       });
       
@@ -759,13 +822,9 @@ export default function DashboardPage() {
                       )}
                     </AnimatePresence>
 
-                    {/* Color Palette & Style Tags */}
+                    {/* Style Tags */}
                     {styleProfile && (
                       <>
-                        <section className="p-6 rounded-2xl bg-white/[0.04] border border-white/[0.08]">
-                          <ColorPaletteDisplay palette={styleProfile.colorPalette} />
-                        </section>
-                        
                         <section className="p-6 rounded-2xl bg-white/[0.04] border border-white/[0.08]">
                           <StyleTags tags={styleTags} />
                         </section>

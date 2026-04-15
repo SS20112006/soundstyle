@@ -1,11 +1,40 @@
 import { create } from 'zustand';
 import { SpotifyUser, SpotifyArtist, SpotifyTrack, AudioFeatures, SpotifyPlaylist, MoodProfile } from '@/types';
 
+export type Gender = 'male' | 'female' | 'other';
+export type SizeSystem = 'EU' | 'US' | 'UK';
+
+export interface UserMeasurements {
+  gender: Gender;
+  tops: {
+    size: string; // XS, S, M, L, XL, XXL
+    chest?: number; // cm
+    waist?: number; // cm
+  };
+  bottoms: {
+    size: string; // 28, 30, 32, 34, 36, 38, 40
+    waist?: number; // cm
+    hips?: number; // cm
+    inseam?: number; // cm
+  };
+  shoes: {
+    sizeEU: number;
+    sizeUS: number;
+    sizeUK: number;
+  };
+  sizeSystem: SizeSystem;
+}
+
 interface AppStore {
   // Auth state
   isAuthenticated: boolean;
   user: SpotifyUser | null;
   setAuth: (user: SpotifyUser | null) => void;
+  
+  // User measurements
+  measurements: UserMeasurements | null;
+  setMeasurements: (measurements: UserMeasurements | null) => void;
+  isProfileComplete: boolean;
   
   // Spotify data
   topArtists: SpotifyArtist[];
@@ -42,7 +71,7 @@ interface AppStore {
   clearAll: () => void;
 }
 
-export const useAppStore = create<AppStore>((set) => ({
+export const useAppStore = create<AppStore>((set, get) => ({
   // Auth state
   isAuthenticated: false,
   user: null,
@@ -50,6 +79,22 @@ export const useAppStore = create<AppStore>((set) => ({
     isAuthenticated: !!user, 
     user 
   }),
+  
+  // User measurements
+  measurements: null,
+  setMeasurements: (measurements) => {
+    set({ measurements });
+    // Save to localStorage
+    if (measurements) {
+      localStorage.setItem('soundstyle_measurements', JSON.stringify(measurements));
+    } else {
+      localStorage.removeItem('soundstyle_measurements');
+    }
+  },
+  get isProfileComplete() {
+    const measurements = get().measurements;
+    return measurements !== null && measurements.gender !== undefined;
+  },
   
   // Spotify data
   topArtists: [],
@@ -94,6 +139,7 @@ export const useAppStore = create<AppStore>((set) => ({
   clearAll: () => set({
     isAuthenticated: false,
     user: null,
+    measurements: null,
     topArtists: [],
     topTracks: [],
     recentlyPlayed: [],
